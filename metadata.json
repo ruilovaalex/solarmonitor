@@ -1,0 +1,6 @@
+{
+  "name": "SolarMonitor",
+  "description": "Sistema de Monitoreo Fotovoltaico para el seguimiento de consumo y generación energética.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
