@@ -20,6 +20,13 @@ export interface MetricSummary {
   balanceTrend: number;
 }
 
+export interface DeviceStatusSummary {
+  connected: boolean;
+  status: string;
+  endpoint?: string;
+  message?: string;
+}
+
 export type TimeRange = "day" | "week" | "month";
 
 export interface User {

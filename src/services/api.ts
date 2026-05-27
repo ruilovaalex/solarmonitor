@@ -1,4 +1,4 @@
-import { EnergyData, MetricSummary, TimeRange, User } from "../types";
+import { DeviceStatusSummary, EnergyData, MetricSummary, TimeRange, User } from "../types";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
@@ -12,6 +12,12 @@ export const fetchEnergyData = async (range: TimeRange): Promise<EnergyData[]> =
 export const fetchMetricSummary = async (): Promise<MetricSummary> => {
   const response = await fetch(`${API_URL}/metric-summary`);
   if (!response.ok) throw new Error("No se pudo cargar el resumen energetico");
+  return response.json();
+};
+
+export const fetchDeviceStatus = async (): Promise<DeviceStatusSummary> => {
+  const response = await fetch(`${API_URL}/device-status`);
+  if (!response.ok) throw new Error("No se pudo cargar el estado del ESP32");
   return response.json();
 };
 

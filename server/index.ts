@@ -48,6 +48,45 @@ app.get("/api/device-config", async (_req, res) => {
   });
 });
 
+app.get("/api/device-status", async (_req, res) => {
+  const device = await prisma.device.findFirst({
+    orderBy: { createdAt: "asc" },
+  });
+  const ipAddress = device?.ipAddress;
+
+  if (!ipAddress) {
+    res.json({
+      connected: false,
+      status: device?.status ?? "INACTIVE",
+      message: "No hay IP configurada para el ESP32",
+    });
+    return;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2000);
+
+  try {
+    const response = await fetch(`http://${ipAddress}/data`, {
+      signal: controller.signal,
+    });
+
+    res.json({
+      connected: response.ok,
+      status: device?.status ?? "ACTIVE",
+      endpoint: `http://${ipAddress}/data`,
+    });
+  } catch {
+    res.json({
+      connected: false,
+      status: device?.status ?? "INACTIVE",
+      endpoint: `http://${ipAddress}/data`,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+});
+
 const deviceConfigSchema = z.object({
   id: z.string().default("demo-esp32"),
   name: z.string().min(1),
@@ -200,7 +239,15 @@ const readingSchema = z.object({
   generationPowerW: z.coerce.number().nonnegative().optional(),
   consumptionPowerW: z.coerce.number().nonnegative().optional(),
   batteryVoltage: z.coerce.number().nonnegative().optional(),
+  batteryCurrent: z.coerce.number().nonnegative().optional(),
+  batteryPowerW: z.coerce.number().optional(),
+  batterySoc: z.coerce.number().min(0).max(100).optional(),
+  panelTemperature: z.coerce.number().optional(),
+  ambientTemperature: z.coerce.number().optional(),
   temperature: z.coerce.number().optional(),
+  irradianceWm2: z.coerce.number().nonnegative().optional(),
+  wifiRssi: z.coerce.number().int().optional(),
+  uptimeSeconds: z.coerce.number().int().nonnegative().optional(),
   recordedAt: z.coerce.date().optional(),
 });
 
@@ -234,7 +281,15 @@ app.post("/api/readings", async (req, res) => {
       generationPowerW,
       consumptionPowerW,
       batteryVoltage: payload.batteryVoltage,
+      batteryCurrent: payload.batteryCurrent,
+      batteryPowerW: payload.batteryPowerW,
+      batterySoc: payload.batterySoc,
+      panelTemperature: payload.panelTemperature,
+      ambientTemperature: payload.ambientTemperature,
       temperature: payload.temperature,
+      irradianceWm2: payload.irradianceWm2,
+      wifiRssi: payload.wifiRssi,
+      uptimeSeconds: payload.uptimeSeconds,
       recordedAt: payload.recordedAt,
     },
   });

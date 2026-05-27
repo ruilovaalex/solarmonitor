@@ -32,37 +32,50 @@ model User {
 }
 
 model Device {
-  id          String       @id @default(cuid())
-  name        String
-  location    String?
-  ipAddress   String?
-  capacityKw  Decimal?     @db.Decimal(8, 2)
-  status      DeviceStatus @default(ACTIVE)
-  readings    Reading[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              String       @id @default(cuid())
+  name            String
+  location        String?
+  ipAddress       String?
+  macAddress      String?
+  firmwareVersion String?
+  mqttTopic       String?
+  panelModel      String?
+  sensorModel     String?
+  capacityKw      Decimal?     @db.Decimal(8, 2)
+  status          DeviceStatus @default(ACTIVE)
+  readings        Reading[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@map("devices")
 }
 
 model Reading {
-  id                String   @id @default(cuid())
-  deviceId          String
-  voltage           Decimal  @db.Decimal(10, 3)
-  current           Decimal  @db.Decimal(10, 3)
-  power             Decimal  @db.Decimal(10, 3)
-  energy            Decimal? @db.Decimal(12, 3)
-  generationKwh     Decimal? @db.Decimal(12, 3)
-  consumptionKwh    Decimal? @db.Decimal(12, 3)
-  gridImportKwh     Decimal? @db.Decimal(12, 3)
-  gridExportKwh     Decimal? @db.Decimal(12, 3)
+  id                 String   @id @default(cuid())
+  deviceId           String
+  voltage            Decimal  @db.Decimal(10, 3)
+  current            Decimal  @db.Decimal(10, 3)
+  power              Decimal  @db.Decimal(10, 3)
+  energy             Decimal? @db.Decimal(12, 3)
+  generationKwh      Decimal? @db.Decimal(12, 3)
+  consumptionKwh     Decimal? @db.Decimal(12, 3)
+  gridImportKwh      Decimal? @db.Decimal(12, 3)
+  gridExportKwh      Decimal? @db.Decimal(12, 3)
   selfConsumptionKwh Decimal? @db.Decimal(12, 3)
-  generationPowerW  Decimal? @db.Decimal(10, 3)
-  consumptionPowerW Decimal? @db.Decimal(10, 3)
-  batteryVoltage    Decimal? @db.Decimal(10, 3)
-  temperature       Decimal? @db.Decimal(6, 2)
-  recordedAt        DateTime @default(now())
-  createdAt         DateTime @default(now())
+  generationPowerW   Decimal? @db.Decimal(10, 3)
+  consumptionPowerW  Decimal? @db.Decimal(10, 3)
+  batteryVoltage     Decimal? @db.Decimal(10, 3)
+  batteryCurrent     Decimal? @db.Decimal(10, 3)
+  batteryPowerW      Decimal? @db.Decimal(10, 3)
+  batterySoc         Decimal? @db.Decimal(5, 2)
+  panelTemperature   Decimal? @db.Decimal(6, 2)
+  ambientTemperature Decimal? @db.Decimal(6, 2)
+  temperature        Decimal? @db.Decimal(6, 2)
+  irradianceWm2      Decimal? @db.Decimal(10, 3)
+  wifiRssi           Int?
+  uptimeSeconds      Int?
+  recordedAt         DateTime @default(now())
+  createdAt          DateTime @default(now())
 
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 

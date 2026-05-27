@@ -1,8 +1,9 @@
 import { User } from "@/types";
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu } from "lucide-react";
-import { logout } from "@/services/api";
+import { fetchDeviceStatus, logout } from "@/services/api";
 import { useNavigate } from "react-router-dom";
+import useSWR from "swr";
 
 interface NavbarProps {
   user: User | null;
@@ -11,6 +12,11 @@ interface NavbarProps {
 
 export function Navbar({ user, onMenuClick }: NavbarProps) {
   const navigate = useNavigate();
+  const { data: deviceStatus, isLoading } = useSWR("device-status", fetchDeviceStatus, {
+    refreshInterval: 10000,
+    revalidateOnFocus: true,
+  });
+  const isEsp32Connected = deviceStatus?.connected === true;
 
   const handleLogout = async () => {
     await logout();
@@ -30,9 +36,19 @@ export function Navbar({ user, onMenuClick }: NavbarProps) {
       </div>
 
       <div className="flex items-center gap-4 md:gap-6">
-        <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 uppercase tracking-widest">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Sistema Conectado
+        <div
+          className={`hidden sm:flex items-center gap-2 text-[10px] font-bold px-3 py-1.5 rounded-full border uppercase tracking-widest ${
+            isEsp32Connected
+              ? "text-emerald-600 bg-emerald-50 border-emerald-100"
+              : "text-slate-500 bg-slate-50 border-slate-200"
+          }`}
+        >
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isEsp32Connected ? "bg-emerald-500 animate-pulse" : isLoading ? "bg-amber-400 animate-pulse" : "bg-slate-300"
+            }`}
+          ></span>
+          {isEsp32Connected ? "Panel Conectado" : isLoading ? "Verificando Panel" : "Panel Desconectado"}
         </div>
 
         <div className="flex items-center gap-3 border-l border-slate-100 pl-4 md:pl-6">
